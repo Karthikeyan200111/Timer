@@ -58,21 +58,42 @@ function App() {
     return `${formatMinute} : ${formatSeconds}`;
   };
 
-  const resetTime = () => {
-    const audio = document.getElementById("beep");
-    if (!timeLeft && title === "Session") {
-      setTimeLeft(breakLength * 60);
-      setTitle("Break");
-      audio.play();
-    }
-    if (!timeLeft && title === "BREAK") {
-      setTimeLeft(sessionLength * 60);
-      setTitle("SESSION");
-      audio.pause();
-      audio.currentTime = 0;
-    }
-  };
+  // const resetTime = () => {
+  //   const audio = document.getElementById("beep");
+  //   if (!timeLeft && title === "Session") {
+  //     setTimeLeft(breakLength * 60);
+  //     setTitle("Break");
+  //     audio.play();
+  //   }
+  //   if (!timeLeft && title === "BREAK") {
+  //     setTimeLeft(sessionLength * 60);
+  //     setTitle("SESSION");
+  //     audio.pause();
+  //     audio.currentTime = 0;
+  //   }
+  //};
   useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (play && timeLeft) {
+        setTimeLeft(timeLeft - 1);
+      }
+    }, 1000);
+
+    const resetTime = () => {
+      const audio = document.getElementById("beep");
+      if (!timeLeft && title === "Session") {
+        setTimeLeft(breakLength * 60);
+        setTitle("Break");
+        audio.play();
+      }
+      if (!timeLeft && title === "BREAK") {
+        setTimeLeft(sessionLength * 60);
+        setTitle("SESSION");
+        audio.pause();
+        audio.currentTime = 0;
+      }
+    };
+
     const interval = setInterval(() => {
       if (play && timeLeft) {
         setTimeLeft(timeLeft - 1);
@@ -80,8 +101,11 @@ function App() {
       resetTime(); // Call resetTime during the timer update
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [play, timeLeft]);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [play, timeLeft, title, breakLength, sessionLength]);
 
   const timeTitle = title === "Session" ? "Session" : "Break";
   return (
